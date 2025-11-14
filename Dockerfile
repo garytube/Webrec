@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install dependencies for Puppeteer
+# Install dependencies for Puppeteer and Chromium
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -24,7 +24,12 @@ RUN apt-get update && apt-get install -y \
     libxkbcommon0 \
     libxrandr2 \
     xdg-utils \
+    chromium \
     && rm -rf /var/lib/apt/lists/*
+
+# Set environment variable for Chromium executable path
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Create app directory
 WORKDIR /app

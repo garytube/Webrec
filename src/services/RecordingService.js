@@ -18,7 +18,7 @@ class RecordingService {
       console.log(`Duration: ${duration}s, Resolution: ${this.config.videoWidth}x${this.config.videoHeight}`);
 
       // Launch browser with optimized settings for smooth recording
-      browser = await puppeteer.launch({
+      const launchOptions = {
         headless: 'new',
         args: [
           '--no-sandbox',
@@ -30,7 +30,14 @@ class RecordingService {
           '--single-process',
           '--disable-gpu'
         ]
-      });
+      };
+
+      // Use system Chromium if available (in Docker)
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+
+      browser = await puppeteer.launch(launchOptions);
 
       page = await browser.newPage();
 
