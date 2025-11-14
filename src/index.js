@@ -57,9 +57,17 @@ app.post('/record', recordLimiter, async (req, res) => {
       });
     }
 
-    // Validate URL format
+    // Validate URL format and protocol
+    let parsedUrl;
     try {
-      new URL(url);
+      parsedUrl = new URL(url);
+      // Only allow http and https protocols for security
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        return res.status(400).json({ 
+          error: 'Invalid URL protocol. Only http and https are allowed',
+          provided: url
+        });
+      }
     } catch (error) {
       return res.status(400).json({ 
         error: 'Invalid URL format',
@@ -67,17 +75,40 @@ app.post('/record', recordLimiter, async (req, res) => {
       });
     }
 
-    // Start recording asynchronously
+    // Validate and sanitize duration
+    let customDuration = config.videoDuration;
+    if (duration !== undefined) {
+      const parsedDuration = parseInt(duration, 10);
+      if (isNaN(parsedDuration) || parsedDuration < 1 || parsedDuration > 300) {
+        return res.status(400).json({ 
+          error: 'Duration must be a number between 1 and 300 seconds',
+          provided: duration
+        });
+      }
+      customDuration = parsedDuration;
+    }
+
+    // Validate and sanitize filename
     const recordingId = Date.now().toString();
-    const customDuration = duration || config.videoDuration;
-    const customFilename = filename || `recording-${recordingId}`;
+    let customFilename = `recording-${recordingId}`;
+    if (filename) {
+      // Remove potentially dangerous characters from filename
+      const sanitizedFilename = String(filename).replace(/[^a-zA-Z0-9-_]/g, '-');
+      if (sanitizedFilename.length > 100) {
+        return res.status(400).json({ 
+          error: 'Filename is too long (max 100 characters)',
+          provided: filename
+        });
+      }
+      customFilename = sanitizedFilename || `recording-${recordingId}`;
+    }
 
     // Respond immediately
     res.json({ 
       status: 'accepted',
       message: 'Recording request accepted',
       recordingId,
-      url,
+      url: parsedUrl.href,
       duration: customDuration,
       filename: `${customFilename}.webm`
     });
