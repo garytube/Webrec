@@ -10,6 +10,7 @@ A webhook-based web recording tool that captures websites in smooth, high-qualit
 - ⚡ **Async Processing**: Returns immediately while recording in the background
 - 🎬 **Smooth Playback**: Records at 60 FPS for smooth video output
 - 📦 **WebM Format**: Efficient video encoding with WebM format
+- 🔒 **Security**: Rate limiting, input validation, and no known vulnerabilities
 
 ## Quick Start
 
@@ -229,6 +230,17 @@ docker logs webrec
 - Node.js 18+ (for local development)
 - Sufficient disk space for recordings
 - 2GB+ RAM recommended
+
+## Security
+
+Webrec includes several security features:
+- Rate limiting to prevent abuse
+- Input validation and sanitization
+- Protocol whitelist (only HTTP/HTTPS)
+- Filename sanitization to prevent path traversal
+- No known vulnerabilities (CodeQL verified)
+
+For more details, see [SECURITY.md](SECURITY.md)
 
 ## License
 
