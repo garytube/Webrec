@@ -2,6 +2,10 @@
 
 A webhook-based web recording tool that captures websites in smooth, high-quality video format. Simply send a URL via HTTP POST request, and Webrec will record the website in 1080x1920 (9:16 portrait) resolution.
 
+## 🚀 Quick Start
+
+New to Webrec? Check out the [Quick Start Guide](QUICKSTART.md) to get up and running in 5 minutes!
+
 ## Features
 
 - 🎥 **High-Quality Recording**: Captures websites at 1080x1920 resolution (9:16 portrait format)
