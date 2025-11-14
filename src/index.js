@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs').promises;
 const RecordingService = require('./services/RecordingService');
@@ -9,6 +10,27 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting for all routes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
+// Rate limiting for recording endpoint (more strict)
+const recordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 recording requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many recording requests, please try again later.' }
+});
+
+// Apply rate limiting
+app.use(limiter);
 
 // Initialize recording service
 const recordingService = new RecordingService(config);
@@ -23,7 +45,7 @@ app.get('/health', (req, res) => {
 });
 
 // Webhook endpoint for recording requests
-app.post('/record', async (req, res) => {
+app.post('/record', recordLimiter, async (req, res) => {
   try {
     const { url, duration, filename } = req.body;
 
